@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Government Schemes</h2>
+
+{% for scheme in schemes %}
+    <div class="card">
+        <h3>{{ scheme.name }}</h3>
+        <p><strong>Category:</strong> {{ scheme.category }}</p>
+        <p><strong>Eligibility:</strong> {{ scheme.eligibility }}</p>
+        <p><strong>Benefits:</strong> {{ scheme.benefits }}</p>
+    </div>
+{% empty %}
+    <p>No schemes available.</p>
+{% endfor %}
+
+{% endblock %}

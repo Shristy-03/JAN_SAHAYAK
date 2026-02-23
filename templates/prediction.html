@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h2>Area Risk Prediction</h2>
+
+<table border="1">
+    <tr>
+        <th>Area</th>
+        <th>Total Complaints</th>
+    </tr>
+
+    {% for item in data %}
+    <tr>
+        <td>{{ item.area }}</td>
+        <td>{{ item.total }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

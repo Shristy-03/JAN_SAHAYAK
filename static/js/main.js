@@ -105,3 +105,66 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+
+const chatbotBtn = document.getElementById("chatbot-button");
+
+if(chatbotBtn){
+chatbotBtn.onclick=function(){
+document.getElementById("chatbot-box").style.display="flex"
+}
+}
+
+});
+
+function closeChat(){
+document.getElementById("chatbot-box").style.display="none"
+}
+
+function sendMessage(){
+
+let input=document.getElementById("chatInput")
+let msg=input.value
+
+let chat=document.getElementById("chatbot-messages")
+
+chat.innerHTML+=`<p><b>You:</b> ${msg}</p>`
+
+fetch("/chatbot-api/",{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"X-CSRFToken": getCookie("csrftoken")
+},
+body:JSON.stringify({message:msg})
+})
+
+.then(res=>res.json())
+.then(data=>{
+chat.innerHTML+=`<p><b>AI:</b> ${data.reply}</p>`
+})
+
+input.value=""
+}
+
+function getCookie(name) {
+let cookieValue = null;
+
+if (document.cookie && document.cookie !== '') {
+const cookies = document.cookie.split(';');
+
+for (let i = 0; i < cookies.length; i++) {
+const cookie = cookies[i].trim();
+
+if (cookie.substring(0, name.length + 1) === (name + '=')) {
+cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+break;
+}
+}
+}
+
+return cookieValue;
+}

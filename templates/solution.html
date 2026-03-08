@@ -1,6 +1,23 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Suggested Solution</h2>
-<p>Solution logic handled in backend.</p>
+
+<h2>Suggested Schemes for {{ category }}</h2>
+
+{% if schemes %}
+    {% for scheme in schemes %}
+        <div class="card">
+            <h3>{{ scheme.name }}</h3>
+            <p><strong>Eligibility:</strong> {{ scheme.eligibility }}</p>
+            <p><strong>Benefits:</strong> {{ scheme.benefits }}</p>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>No schemes available for this category.</p>
+{% endif %}
+
+<a href="{% url 'complaint' %}" class="primary-btn">
+    Back
+</a>
+
 {% endblock %}

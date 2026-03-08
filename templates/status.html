@@ -1,6 +1,43 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Status Tracking</h2>
-<p>Status visible in dashboard section.</p>
+
+<div class="dashboard-header">
+    <h2>Complaint Status Tracking 🔍</h2>
+    <p>Track the progress of your submitted complaints</p>
+</div>
+
+{% if complaints %}
+    <div class="table-section">
+        <table class="styled-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Problem</th>
+                    <th>Area</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for complaint in complaints %}
+                <tr>
+                    <td>#{{ complaint.id }}</td>
+                    <td>{{ complaint.problem.category }}</td>
+                    <td>{{ complaint.area }}</td>
+                    <td>
+                        <span class="status-badge {{ complaint.status|lower }}">
+                            {{ complaint.status }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="empty-state">
+        <p>No complaints available for tracking.</p>
+    </div>
+{% endif %}
+
 {% endblock %}

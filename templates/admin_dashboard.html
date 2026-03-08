@@ -1,6 +1,33 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Admin Dashboard</h2>
-<p>Use Django Admin Panel at /admin</p>
+
+<div class="dashboard-header">
+    <h2>Admin Dashboard ⚙️</h2>
+    <p>System overview and management panel</p>
+</div>
+
+<div class="admin-cards">
+
+    <div class="admin-card">
+        <h3>Total Users</h3>
+        <p>{{ total_users }}</p>
+    </div>
+
+    <div class="admin-card">
+        <h3>Total Complaints</h3>
+        <p>{{ total_complaints }}</p>
+    </div>
+
+    <div class="admin-card">
+        <h3>Pending Complaints</h3>
+        <p>{{ pending_complaints }}</p>
+    </div>
+
+</div>
+
+<div class="admin-actions">
+    <a href="/admin/" class="primary-btn">Open Django Admin Panel</a>
+</div>
+
 {% endblock %}

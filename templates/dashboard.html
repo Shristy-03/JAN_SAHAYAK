@@ -1,34 +1,56 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<h2>Your Dashboard</h2>
 
-<h3>Your Complaints:</h3>
+<div class="dashboard-header">
+    <h2>Your Dashboard</h2>
+    <p>Welcome back, {{ user.username }} 👋</p>
+</div>
 
-<table border="1">
-    <tr>
-        <th>ID</th>
-        <th>Problem</th>
-        <th>Area</th>
-        <th>Status</th>
-    </tr>
+<div class="stats-section">
+    <div class="stat-card">
+        <h3>Total Complaints</h3>
+        <p>{{ complaints|length }}</p>
+    </div>
+</div>
 
-    {% for complaint in complaints %}
-    <tr>
-        <td>{{ complaint.id }}</td>
-        <td>{{ complaint.problem.category }}</td>
-        <td>{{ complaint.area }}</td>
-        <td>{{ complaint.status }}</td>
-    </tr>
-    {% empty %}
-    <tr>
-        <td colspan="4">No complaints found.</td>
-    </tr>
-    {% endfor %}
-</table>
+<div class="table-section">
+    <h3>Your Complaints</h3>
 
-
+    {% if complaints %}
+        <table class="styled-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Problem</th>
+                    <th>State</th>
+                    <th>City</th>
+                    <th>Status</th>
+                    <th>Area</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for complaint in complaints %}
+                <tr>
+                    <td>#{{ complaint.id }}</td>
+                    <td>{{ complaint.problem.category }}</td>
+                    <td>{{ complaint.state.name }}</td>
+                    <td>{{ complaint.city.name }}</td>
+                    <td>{{ complaint.area }}</td>
+                    <td>
+                        <span class="status-badge {{ complaint.status|lower }}">
+                            {{ complaint.status }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty-state">
+            <p>No complaints submitted yet.</p>
+        </div>
+    {% endif %}
+</div>
 
 {% endblock %}
-

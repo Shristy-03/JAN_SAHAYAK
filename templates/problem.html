@@ -1,6 +1,21 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Select Problem</h2>
-<p>Problem module integrated inside complaint form.</p>
+
+<div class="dashboard-header">
+    <h2>Select Problem Category 🛠️</h2>
+    <p>Choose the type of issue you want to report</p>
+</div>
+
+<div class="problem-info-card">
+    <p>
+        The problem selection module is integrated inside the complaint form.
+        You can select your issue category while submitting a complaint.
+    </p>
+
+    <a href="{% url 'complaint' %}" class="primary-btn">
+        Go to Complaint Form
+    </a>
+</div>
+
 {% endblock %}

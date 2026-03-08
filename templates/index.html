@@ -1,6 +1,41 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Welcome to JAN SAHAYAK</h2>
-<p>Intelligent Citizen Assistance & Problem Prediction System</p>
+
+<div class="hero-section">
+    <div class="hero-content">
+        <h1>Welcome to JAN SAHAYAK 🇮🇳</h1>
+        <p class="hero-subtitle">
+            Intelligent Citizen Assistance & Problem Prediction System
+        </p>
+
+        <div class="hero-buttons">
+            {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}" class="primary-btn">Go to Dashboard</a>
+                <a href="{% url 'complaint' %}" class="secondary-btn">Submit Complaint</a>
+            {% else %}
+                <a href="{% url 'register' %}" class="primary-btn">Get Started</a>
+                <a href="{% url 'login' %}" class="secondary-btn">Login</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="features-section">
+    <div class="feature-card">
+        <h3>📢 Easy Complaint Filing</h3>
+        <p>Submit complaints quickly with structured forms.</p>
+    </div>
+
+    <div class="feature-card">
+        <h3>📊 Status Tracking</h3>
+        <p>Track your complaint progress in real time.</p>
+    </div>
+
+    <div class="feature-card">
+        <h3>🤖 Smart Prediction</h3>
+        <p>AI-powered system to predict resolution insights.</p>
+    </div>
+</div>
+
 {% endblock %}

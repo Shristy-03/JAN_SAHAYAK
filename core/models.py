@@ -22,6 +22,7 @@ class Scheme(models.Model):
     category = models.CharField(max_length=100)
     eligibility = models.TextField()
     benefits = models.TextField()
+    link = models.URLField(blank=True, null=True) 
 
     def __str__(self):
         return self.name
@@ -36,9 +37,28 @@ class Complaint(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
-    area = models.CharField(max_length=200)
+    state = models.ForeignKey('State', on_delete=models.CASCADE,null=True,blank=True)
+    city = models.ForeignKey('City', on_delete=models.CASCADE,null=True,blank=True)
+    area = models.CharField(max_length=100, null=True, blank=True) 
+    pincode = models.CharField(max_length=10,null=True,blank=True)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Pending')
     created_at = models.DateTimeField(auto_now_add=True)
+    description = models.TextField(null=True,blank=True)
 
     def __str__(self):
         return f"Complaint {self.id} - {self.status}"
+
+
+class State(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
+class City(models.Model):
+    state = models.ForeignKey(State, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name

@@ -15,4 +15,19 @@ class RegisterForm(UserCreationForm):
 class ComplaintForm(forms.ModelForm):
     class Meta:
         model = Complaint
-        fields = ['problem', 'area']
+        fields = ['problem', 'state', 'city', 'area','pincode', 'description']
+        widgets = {
+            'state': forms.Select(attrs={'id': 'state'}),
+            'city': forms.Select(attrs={'id': 'city'}),
+            'area': forms.Textarea(attrs={
+                'rows': 3,
+                'maxlength': 200,
+                'placeholder': 'Enter your area'
+            }),
+            'pincode': forms.TextInput(attrs={'placeholder': 'Enter Pincode'}),
+            'description': forms.Textarea(attrs={
+                'rows': 6,
+                'maxlength': 2000,
+                'placeholder': 'Describe your problem (max 300 words)'
+            }),
+        }

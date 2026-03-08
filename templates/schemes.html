@@ -1,17 +1,39 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Government Schemes</h2>
 
-{% for scheme in schemes %}
-    <div class="card">
-        <h3>{{ scheme.name }}</h3>
-        <p><strong>Category:</strong> {{ scheme.category }}</p>
-        <p><strong>Eligibility:</strong> {{ scheme.eligibility }}</p>
-        <p><strong>Benefits:</strong> {{ scheme.benefits }}</p>
+<div class="dashboard-header">
+    <h2>Government Schemes 🇮🇳</h2>
+    <p>Explore available government schemes and benefits</p>
+</div>
+
+{% if schemes %}
+    <div class="schemes-grid">
+        {% for scheme in schemes %}
+            <div class="scheme-card">
+                <h3>{{ scheme.name }}</h3>
+
+                <span class="category-badge">
+                    {{ scheme.category }}
+                </span>
+
+                <p><strong>Eligibility:</strong><br>
+                    {{ scheme.eligibility }}
+                </p>
+
+                <p><strong>Benefits:</strong><br>
+                    {{ scheme.benefits }}
+                </p>
+               <p> <a href="{{ scheme.link }}" target="_blank" class="scheme-btn">
+    🔗 Official Website
+</a></p>
+            </div>
+        {% endfor %}
     </div>
-{% empty %}
-    <p>No schemes available.</p>
-{% endfor %}
+{% else %}
+    <div class="empty-state">
+        <p>No schemes available at the moment.</p>
+    </div>
+{% endif %}
 
 {% endblock %}

@@ -1,12 +1,41 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Register</h2>
 
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Register</button>
-</form>
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>Create Account ✨</h2>
+        <p class="auth-subtitle">Join JAN SAHAYAK today</p>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            {% for field in form %}
+                <div class="form-group">
+                    <label>{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <small class="error-text">{{ field.errors|striptags }}</small>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="auth-btn">Register</button>
+        </form>
+        {% load socialaccount %}
+
+<div style="text-align:center; margin-top:15px;">
+    <a href="{% provider_login_url 'google' %}"
+       style="background:#4285F4; color:white; padding:10px 15px; border-radius:5px; text-decoration:none;">
+        Continue with Google
+    </a>
+</div>
+
+        <p class="auth-footer">
+            Already have an account?
+            <a href="{% url 'login' %}">Login</a>
+        </p>
+    </div>
+</div>
 
 {% endblock %}

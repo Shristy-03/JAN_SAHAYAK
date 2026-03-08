@@ -1,12 +1,72 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Submit Complaint</h2>
 
-<form method="POST" onsubmit="return validateComplaint()">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Submit</button>
-</form>
+<div class="form-container">
+    <div class="form-card">
+        <h2>Submit a Complaint 📝</h2>
+        <p class="form-subtitle">Please provide accurate details about your issue</p>
+
+        <form method="POST" onsubmit="return validateComplaint()">
+            {% csrf_token %}
+
+            {% for field in form %}
+                <div class="form-group">
+                    <label>{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <small class="error-text">{{ field.errors|striptags }}</small>
+                    {% endif %}
+                </div>
+            {% endfor %}
+       
+            <button type="submit" name="action" value="submit" class="primary-btn">
+    Submit Complaint
+</button>
+
+<button type="submit" name="action" value="solution" class="secondary-btn">
+    Find Solution
+</button>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const stateSelect = document.getElementById("state");
+    const citySelect = document.getElementById("city");
+
+    if(stateSelect){
+        stateSelect.addEventListener("change", function() {
+            var stateId = this.value;
+
+            fetch("/ajax/load-cities/?state_id=" + stateId)
+                .then(response => response.json())
+                .then(data => {
+                    citySelect.innerHTML = '<option value="">Select City</option>';
+
+                    data.forEach(function(city) {
+                        citySelect.innerHTML += 
+                            '<option value="' + city.id + '">' + city.name + '</option>';
+                    });
+                });
+        });
+    }
+});
+document.addEventListener("DOMContentLoaded", function() {
+    const textarea = document.querySelector("textarea");
+
+    if(textarea){
+        textarea.addEventListener("input", function() {
+            let words = this.value.trim().split(/\s+/);
+
+            if(words.length > 300){
+                alert("Maximum 300 words allowed!");
+                this.value = words.slice(0,300).join(" ");
+            }
+        });
+    }
+});
+</script>
 
 {% endblock %}

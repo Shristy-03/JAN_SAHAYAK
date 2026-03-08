@@ -126,29 +126,34 @@ document.getElementById("chatbot-box").style.display="none"
 
 function sendMessage(){
 
-let input=document.getElementById("chatInput")
-let msg=input.value
+let input = document.getElementById("chatInput")
+let msg = input.value
 
-let chat=document.getElementById("chatbot-messages")
+if(msg.trim() === ""){
+return
+}
 
-chat.innerHTML+=`<p><b>You:</b> ${msg}</p>`
+let chat = document.getElementById("chatbot-messages")
 
-fetch("/chatbot-api/",{
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-"X-CSRFToken": getCookie("csrftoken")
-},
-body:JSON.stringify({message:msg})
+chat.innerHTML += `<p><b>You:</b> ${msg}</p>`
+
+fetch("/chatbot-api/", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    message: msg
+  })
 })
-
-.then(res=>res.json())
-.then(data=>{
-chat.innerHTML+=`<p><b>AI:</b> ${data.reply}</p>`
+.then(res => res.json())
+.then(data => {
+  chat.innerHTML += `<p><b>Bot:</b> ${data.reply}</p>`
 })
 
 input.value=""
 }
+
 
 function getCookie(name) {
 let cookieValue = null;

@@ -299,27 +299,59 @@ def check_alerts():
 client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 
+def chatbot_reply(message):
+
+    msg = message.lower()
+
+    if "road" in msg or "gaddha" in msg:
+        return "Ye road department ki complaint lag rahi hai."
+
+    elif "water" in msg or "pani" in msg:
+        return "Ye water supply issue hai."
+
+    elif "light" in msg or "electricity" in msg:
+        return "Ye electricity department se related complaint hai."
+
+    # complaint kaise kare
+    elif "complaint" in msg or "complain" in msg:
+        return "Complaint karne ke liye Dashboard par jaake 'Complaint' button par click kare aur form submit kare."
+
+    # complaint status
+    elif "status" in msg:
+        return "Complaint status check karne ke liye Dashboard me 'My Complaints' section open kare."
+
+    # schemes
+    elif "scheme" in msg or "yojana" in msg:
+        return "Abhi available schemes: Jal Jeevan Mission, Ujjwala Yojana, Saubhagya Yojana, Ayushman Bharat. Aap Schemes Section mei ja kr uplabdh yojanaaye dekh skte hai."
+
+    # greeting
+    elif "hello" in msg or "hi" in msg:
+        return "Namaste! Mai Jan Sahayak AI assistant hoon. Mai aapki kya madad kar sakta hoon."
+
+    # road complaint
+    elif "road" in msg or "pothole" in msg:
+        return "Ye road complaint lag rahi hai. Aap Complaint page par jaake 'Road Issue' select karke complaint submit kar sakte hain."
+
+    # water complaint
+    elif "water" in msg or "pani" in msg:
+        return "Ye water supply issue ho sakta hai. Complaint page par jaake 'Water Department' select kare."
+
+    # electricity complaint
+    elif "light" in msg or "electricity" in msg:
+        return "Electricity problem ke liye Complaint page par jaake 'Electricity Department' select kare."
+
+    else:
+        return "Kripya apni complaint detail me bataye."
+
 @csrf_exempt
 def chatbot_api(request):
 
     if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            message = data.get("message")
+        data = json.loads(request.body)
+        message = data.get("message")
 
-            if not message:
-                return JsonResponse({"reply": "Message empty"})
+        reply = chatbot_reply(message)
 
-            response = client.models.generate_content(
-                model="gemini-1.5-flash",
-                contents=message
-            )
-
-            return JsonResponse({
-                "reply": response.text
-            })
-
-        except Exception as e:
-            return JsonResponse({"reply": str(e)})
-
-    return JsonResponse({"reply": "Invalid request"})
+        return JsonResponse({
+            "reply": reply
+        })

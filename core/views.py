@@ -3,12 +3,11 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import RegisterForm, ComplaintForm
-from .models import Scheme, Complaint
+from .models import Scheme, Complaint,City
 from django.db.models import Count
 from django.contrib.auth.models import User
 from .models import Complaint
 from django.http import JsonResponse
-from .models import City
 from datetime import datetime, timedelta
 from .ml_prediction import predict_next_5_days
 from django.utils import timezone
@@ -68,23 +67,35 @@ def login_view(request):
 
 @login_required
 def dashboard(request):
-    complaints = Complaint.objects.filter(user=request.user)
 
-    # Only current user's category wise count
-    category_data = (
-        Complaint.objects
-        .filter(user=request.user)
-        .values('problem__category')
-        .annotate(total=Count('id'))
-    )
+    # Superuser -> All complaints
+    if request.user.is_superuser:
+        complaints = Complaint.objects.all()
+
+        category_data = (
+            Complaint.objects
+            .values('problem__category')
+            .annotate(total=Count('id'))
+        )
+
+    # Normal User -> Only own complaints
+    else:
+        complaints = Complaint.objects.filter(user=request.user)
+
+        category_data = (
+            Complaint.objects
+            .filter(user=request.user)
+            .values('problem__category')
+            .annotate(total=Count('id'))
+        )
 
     labels = [item['problem__category'] for item in category_data]
     data = [item['total'] for item in category_data]
 
     context = {
         'complaints': complaints,
-        'labels': json.dumps(labels),   # 🔥 VERY IMPORTANT
-        'data': json.dumps(data),       # 🔥 VERY IMPORTANT
+        'labels': json.dumps(labels),
+        'data': json.dumps(data),
     }
 
     return render(request, 'dashboard.html', context)

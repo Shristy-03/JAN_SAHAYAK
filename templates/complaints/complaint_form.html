@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Report an issue | JAN SAHAYAK{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-lg-8">
+  <div class="d-flex justify-content-between align-items-center mb-4"><div><h1 class="h2 mb-1">Report a civic issue</h1><p class="text-secondary mb-0">Give the concerned department enough detail to act quickly.</p></div><a class="btn btn-outline-secondary" href="{% url 'complaints:my_complaints' %}">My complaints</a></div>
+  <div class="card shadow-sm border-0"><div class="card-body p-4"><form method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}
+    {% for field in form %}<div class="mb-3"><label class="form-label fw-medium" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}{% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}</div>{% endfor %}
+    {% for error in form.non_field_errors %}<div class="alert alert-danger">{{ error }}</div>{% endfor %}
+    <div class="border rounded p-3 mb-3"><div class="d-flex flex-wrap justify-content-between gap-2 mb-2"><div><h2 class="h6 mb-1">Location</h2><p class="small text-secondary mb-0">Use your current location or click the map to select a point manually.</p></div><button class="btn btn-outline-primary btn-sm" id="use-location" type="button">Use my location</button></div><div id="location-map" style="height: 320px" aria-label="Interactive map for selecting complaint location"></div><div id="location-message" class="small text-secondary mt-2" aria-live="polite">No coordinates selected.</div></div><div class="form-text mb-3">Up to 5 JPEG, PNG, or WebP images, each no larger than 5 MB.</div><button class="btn btn-primary" type="submit">Submit complaint</button>
+  </form></div></div>
+</div></div>
+{% endblock %}
+{% block extra_js %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const latitude = document.getElementById('id_latitude'); const longitude = document.getElementById('id_longitude'); const message = document.getElementById('location-message');
+  const map = L.map('location-map').setView([20.5937, 78.9629], 5);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'}).addTo(map);
+  let marker;
+  function setLocation(lat, lng, zoom) { latitude.value = Number(lat).toFixed(6); longitude.value = Number(lng).toFixed(6); if (marker) marker.setLatLng([lat, lng]); else marker = L.marker([lat, lng]).addTo(map); map.setView([lat, lng], zoom || 16); message.textContent = `Selected coordinates: ${latitude.value}, ${longitude.value}`; }
+  if (latitude.value && longitude.value) setLocation(latitude.value, longitude.value, 16);
+  map.on('click', event => setLocation(event.latlng.lat, event.latlng.lng));
+  document.getElementById('use-location').addEventListener('click', () => { if (!navigator.geolocation) { message.textContent = 'Browser geolocation is unavailable. Select a point on the map instead.'; return; } message.textContent = 'Requesting your current location…'; navigator.geolocation.getCurrentPosition(position => setLocation(position.coords.latitude, position.coords.longitude, 16), () => { message.textContent = 'Location permission was unavailable. Select a point on the map instead.'; }, {enableHighAccuracy: true, timeout: 10000, maximumAge: 60000}); });
+});
+</script>
+{% endblock %}

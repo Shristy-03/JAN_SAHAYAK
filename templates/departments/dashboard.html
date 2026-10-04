@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}{{ department.name }} | JAN SAHAYAK{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4"><div><h1 class="h2 mb-1">{{ department.name }}</h1><p class="text-secondary mb-0">Manage civic issues assigned to your department.</p></div><a class="btn btn-primary" href="{% url 'departments:complaint_list' %}">View work queue</a></div>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg"><div class="card shadow-sm border-0"><div class="card-body"><span class="small text-secondary">Assigned</span><div class="h3 mb-0">{{ totals.total }}</div></div></div></div>
+  <div class="col-6 col-lg"><div class="card shadow-sm border-0"><div class="card-body"><span class="small text-secondary">Pending</span><div class="h3 mb-0 text-warning">{{ totals.pending }}</div></div></div></div>
+  <div class="col-6 col-lg"><div class="card shadow-sm border-0"><div class="card-body"><span class="small text-secondary">In progress</span><div class="h3 mb-0 text-primary">{{ totals.in_progress }}</div></div></div></div>
+  <div class="col-6 col-lg"><div class="card shadow-sm border-0"><div class="card-body"><span class="small text-secondary">Completed</span><div class="h3 mb-0 text-success">{{ totals.completed }}</div></div></div></div>
+  <div class="col-6 col-lg"><div class="card shadow-sm border-0"><div class="card-body"><span class="small text-secondary">Overdue</span><div class="h3 mb-0 text-danger">{{ overdue_count }}</div></div></div></div>
+</div>
+<div class="card shadow-sm border-0"><div class="card-body p-0"><div class="p-4 border-bottom"><h2 class="h5 mb-0">Recent assigned complaints</h2></div>
+{% if recent_complaints %}<div class="list-group list-group-flush">{% for complaint in recent_complaints %}<a class="list-group-item list-group-item-action py-3" href="{% url 'departments:complaint_detail' complaint.reference_id %}"><div class="d-flex justify-content-between gap-3"><div><div class="fw-semibold">{{ complaint.title }}</div><div class="small text-secondary">{{ complaint.reference_id }} &middot; {{ complaint.citizen.get_full_name|default:complaint.citizen.username }}</div></div><span class="badge align-self-start {% if complaint.status == 'IN_PROGRESS' %}text-bg-primary{% elif complaint.status == 'COMPLETED' %}text-bg-success{% elif complaint.status == 'REJECTED' %}text-bg-danger{% else %}text-bg-warning{% endif %}">{{ complaint.get_status_display }}</span></div></a>{% endfor %}</div>{% else %}<div class="p-5 text-center text-secondary">No complaints are assigned to this department.</div>{% endif %}
+</div></div>
+{% endblock %}

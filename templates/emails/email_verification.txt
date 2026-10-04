@@ -1,0 +1,7 @@
+Hello {{ user.get_full_name|default:user.username }},
+
+Welcome to JAN SAHAYAK. Verify your email address and activate your account by opening this link:
+
+{{ verification_url }}
+
+This link expires in 48 hours. If you did not create this account, you can safely ignore this email.

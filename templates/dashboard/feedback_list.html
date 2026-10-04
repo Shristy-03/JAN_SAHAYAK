@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block title %}Citizen feedback | JAN SAHAYAK{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4"><div><h1 class="h2 mb-1">Citizen feedback</h1><p class="text-secondary mb-0">Review feedback submitted after resolved complaints.</p></div><a class="btn btn-outline-primary" href="{% url 'dashboard:admin_dashboard' %}">Dashboard</a></div>
+<div class="card shadow-sm border-0"><div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Complaint</th><th>Citizen</th><th>Department</th><th>Rating</th><th>Comment</th><th>Date</th></tr></thead><tbody>{% for feedback in feedback_entries %}<tr><td><a href="{% url 'dashboard:complaint_detail' feedback.complaint.reference_id %}">{{ feedback.complaint.reference_id }}</a><div class="small text-secondary">{{ feedback.complaint.title }}</div></td><td>{{ feedback.citizen.get_full_name|default:feedback.citizen.username }}</td><td>{{ feedback.complaint.assigned_department.name|default:'Unassigned' }}</td><td>{{ feedback.rating }}/5</td><td>{{ feedback.comment|default:'—' }}</td><td>{{ feedback.created_at|date:'d M Y' }}</td></tr>{% empty %}<tr><td colspan="6" class="text-center py-5 text-secondary">No feedback has been submitted yet.</td></tr>{% endfor %}</tbody></table></div></div>
+{% endblock %}

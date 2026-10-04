@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Sign in | JAN SAHAYAK{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-md-7 col-lg-5"><div class="card shadow-sm border-0"><div class="card-body p-4">
+  <h1 class="h3 mb-3">Sign in</h1><form method="post" novalidate>{% csrf_token %}
+    {% for field in form %}<div class="mb-3"><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}</div>{% endfor %}
+    {% for error in form.non_field_errors %}<div class="alert alert-danger">{{ error }}</div>{% endfor %}
+    <button class="btn btn-primary w-100" type="submit">Sign in</button>
+  </form><p class="mb-0 mt-3 text-center">New here? <a href="{% url 'accounts:register' %}">Create an account</a></p>
+</div></div></div></div>
+{% endblock %}

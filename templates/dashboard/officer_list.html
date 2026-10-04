@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block title %}Department officers | JAN SAHAYAK{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4"><div><h1 class="h2 mb-1">Department officers</h1><p class="text-secondary mb-0">Create and manage officers assigned to civic departments.</p></div><a class="btn btn-primary" href="{% url 'dashboard:officer_add' %}">Add officer</a></div>
+<div class="card shadow-sm border-0"><div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Officer</th><th>Department</th><th>Email</th><th>Status</th><th></th></tr></thead><tbody>{% for officer in officers %}<tr><td>{{ officer.get_full_name|default:officer.username }}</td><td>{{ officer.department.name }}</td><td>{{ officer.email }}</td><td>{% if officer.is_active %}<span class="badge text-bg-success">Active</span>{% else %}<span class="badge text-bg-secondary">Inactive</span>{% endif %}</td><td><a class="btn btn-sm btn-outline-primary" href="{% url 'dashboard:officer_edit' officer.pk %}">Edit</a></td></tr>{% empty %}<tr><td colspan="5" class="text-center py-5 text-secondary">No department officers are configured.</td></tr>{% endfor %}</tbody></table></div></div>
+{% endblock %}

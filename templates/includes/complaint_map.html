@@ -1,0 +1,7 @@
+{% if complaint.latitude is not None and complaint.longitude is not None %}
+  <div id="complaint-map" class="mt-3" style="height: 260px" aria-label="Complaint location map"></div>
+  <p class="small text-secondary mt-2 mb-0">Coordinates: {{ complaint.latitude }}, {{ complaint.longitude }}</p>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { const map = L.map('complaint-map').setView([{{ complaint.latitude }}, {{ complaint.longitude }}], 16); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'}).addTo(map); L.marker([{{ complaint.latitude }}, {{ complaint.longitude }}]).addTo(map); });</script>
+{% endif %}

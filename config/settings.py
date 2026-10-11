@@ -3,6 +3,7 @@
 import os
 from pathlib import Path
 
+import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -51,6 +52,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -71,6 +73,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'config.context_processors.map_tiles',
             ],
         },
     },
@@ -79,18 +82,32 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': required_env('DATABASE_NAME'),
-        'USER': required_env('DATABASE_USER'),
-        'PASSWORD': required_env('DATABASE_PASSWORD'),
-        'HOST': required_env('DATABASE_HOST'),
-        'PORT': required_env('DATABASE_PORT'),
-        'CONN_MAX_AGE': int(os.getenv('DATABASE_CONN_MAX_AGE', '60')),
-        'CONN_HEALTH_CHECKS': True,
+DATABASE_CONN_MAX_AGE = int(os.getenv('DATABASE_CONN_MAX_AGE', '60'))
+DATABASE_URL = os.getenv('DATABASE_URL', '').strip()
+
+if DATABASE_URL:
+    # Render supplies this from the linked managed PostgreSQL instance.
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=DATABASE_CONN_MAX_AGE,
+            conn_health_checks=True,
+        )
     }
-}
+else:
+    # Preserve local PostgreSQL configuration without committing credentials.
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': required_env('DATABASE_NAME'),
+            'USER': required_env('DATABASE_USER'),
+            'PASSWORD': required_env('DATABASE_PASSWORD'),
+            'HOST': required_env('DATABASE_HOST'),
+            'PORT': required_env('DATABASE_PORT'),
+            'CONN_MAX_AGE': DATABASE_CONN_MAX_AGE,
+            'CONN_HEALTH_CHECKS': True,
+        }
+    }
 
 
 # Password validation
@@ -127,18 +144,67 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = Path(os.getenv('MEDIA_ROOT') or BASE_DIR / 'media')
+USE_S3_MEDIA = env_bool('USE_S3_MEDIA')
+STORAGES = {
+    'default': {
+        'BACKEND': 'storages.backends.s3.S3Storage' if USE_S3_MEDIA else 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
 
-# Enable the secure-cookie and HTTPS options in the deployment environment once
-# the application is served through HTTPS.
+if USE_S3_MEDIA:
+    # S3-compatible object storage keeps user uploads durable and available to
+    # all application instances. The bucket's public-read delivery endpoint
+    # must be configured by the production storage provider.
+    AWS_ACCESS_KEY_ID = required_env('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = required_env('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = required_env('AWS_STORAGE_BUCKET_NAME')
+    AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME') or None
+    AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL') or None
+    AWS_S3_CUSTOM_DOMAIN = os.getenv('AWS_S3_CUSTOM_DOMAIN') or None
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_DEFAULT_ACL = None
+    AWS_QUERYSTRING_AUTH = False
+elif not DEBUG:
+    raise ImproperlyConfigured(
+        'Production deployments must set USE_S3_MEDIA=True and configure S3-compatible media storage.'
+    )
+
+# Esri's ArcGIS Online World Street Map is the no-key local-development
+# default. Production deployments can configure an approved provider endpoint
+# and its exact attribution through environment variables without changing
+# Leaflet templates.
+DEFAULT_MAP_TILE_URL = (
+    'https://server.arcgisonline.com/ArcGIS/rest/services/'
+    'World_Street_Map/MapServer/tile/{z}/{y}/{x}'
+)
+DEFAULT_MAP_TILE_ATTRIBUTION = (
+    'Tiles &copy; <a href="https://www.esri.com/">Esri</a> — Sources: Esri, HERE, Garmin, USGS, '
+    'Intermap, INCREMENT P, NRCan, Esri Japan, METI, Esri China (Hong Kong), Esri Korea, '
+    'Esri (Thailand), NGCC, &copy; OpenStreetMap contributors, and the GIS User Community'
+)
+MAP_TILE_URL = (os.getenv('MAP_TILE_URL') or DEFAULT_MAP_TILE_URL).strip()
+MAP_TILE_ATTRIBUTION = (os.getenv('MAP_TILE_ATTRIBUTION') or DEFAULT_MAP_TILE_ATTRIBUTION).strip()
+MAP_TILE_MAX_ZOOM = int(os.getenv('MAP_TILE_MAX_ZOOM') or '19')
+
+# Render terminates HTTPS before forwarding requests to Django.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
-SESSION_COOKIE_SECURE = env_bool('SESSION_COOKIE_SECURE')
-CSRF_COOKIE_SECURE = env_bool('CSRF_COOKIE_SECURE')
-SECURE_SSL_REDIRECT = env_bool('SECURE_SSL_REDIRECT')
+SECURE_REFERRER_POLICY = 'same-origin'
+SESSION_COOKIE_SECURE = env_bool('SESSION_COOKIE_SECURE', default=not DEBUG)
+CSRF_COOKIE_SECURE = env_bool('CSRF_COOKIE_SECURE', default=not DEBUG)
+SECURE_SSL_REDIRECT = env_bool('SECURE_SSL_REDIRECT', default=not DEBUG)
+SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', '0' if DEBUG else '31536000'))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool('SECURE_HSTS_INCLUDE_SUBDOMAINS', default=not DEBUG)
+SECURE_HSTS_PRELOAD = env_bool('SECURE_HSTS_PRELOAD', default=not DEBUG)
 
 # The console backend keeps local verification flows usable without exposing or
 # requiring SMTP credentials. Phase 10 will add the notification service.
@@ -150,6 +216,7 @@ EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 EMAIL_USE_TLS = env_bool('EMAIL_USE_TLS', True)
+EMAIL_TIMEOUT = int(os.getenv('EMAIL_TIMEOUT', '10'))
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@jansahayak.local')
 
 AUTHENTICATION_BACKENDS = ['accounts.backends.EmailOrUsernameModelBackend']

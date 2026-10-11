@@ -19,8 +19,15 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, path
 from django.views.generic import RedirectView
+from django.http import HttpResponse
+
+
+def healthcheck(request):
+    """Lightweight endpoint for Render health checks."""
+    return HttpResponse('ok', content_type='text/plain')
 
 urlpatterns = [
+    path('healthz/', healthcheck, name='healthcheck'),
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls', namespace='accounts')),
     path('complaints/', include('complaints.urls', namespace='complaints')),

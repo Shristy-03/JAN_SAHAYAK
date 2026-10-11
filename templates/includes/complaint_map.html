@@ -3,5 +3,5 @@
   <p class="small text-secondary mt-2 mb-0">Coordinates: {{ complaint.latitude }}, {{ complaint.longitude }}</p>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>document.addEventListener('DOMContentLoaded', () => { const map = L.map('complaint-map').setView([{{ complaint.latitude }}, {{ complaint.longitude }}], 16); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'}).addTo(map); L.marker([{{ complaint.latitude }}, {{ complaint.longitude }}]).addTo(map); });</script>
+  <script>document.addEventListener('DOMContentLoaded', () => { const map = L.map('complaint-map').setView([{{ complaint.latitude }}, {{ complaint.longitude }}], 16); L.tileLayer('{{ map_tile_url|escapejs }}', {maxZoom: {{ map_tile_max_zoom }}, attribution: '{{ map_tile_attribution|escapejs }}'}).addTo(map); L.marker([{{ complaint.latitude }}, {{ complaint.longitude }}]).addTo(map); });</script>
 {% endif %}

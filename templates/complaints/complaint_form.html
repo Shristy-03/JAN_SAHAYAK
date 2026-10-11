@@ -17,7 +17,8 @@
 document.addEventListener('DOMContentLoaded', () => {
   const latitude = document.getElementById('id_latitude'); const longitude = document.getElementById('id_longitude'); const message = document.getElementById('location-message');
   const map = L.map('location-map').setView([20.5937, 78.9629], 5);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'}).addTo(map);
+  const tileLayer = L.tileLayer('{{ map_tile_url|escapejs }}', {maxZoom: {{ map_tile_max_zoom }}, attribution: '{{ map_tile_attribution|escapejs }}'}).addTo(map);
+  tileLayer.on('tileerror', () => { message.textContent = 'Map tiles are temporarily unavailable. You can still select a location manually.'; });
   let marker;
   function setLocation(lat, lng, zoom) { latitude.value = Number(lat).toFixed(6); longitude.value = Number(lng).toFixed(6); if (marker) marker.setLatLng([lat, lng]); else marker = L.marker([lat, lng]).addTo(map); map.setView([lat, lng], zoom || 16); message.textContent = `Selected coordinates: ${latitude.value}, ${longitude.value}`; }
   if (latitude.value && longitude.value) setLocation(latitude.value, longitude.value, 16);
